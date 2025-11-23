@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHive Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin: 2rem auto;
+        }
+        .form-container h2 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .dashboard {
+            display: none;
+        }
+        .dashboard.active {
+            display: block;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .metric-card h3 {
+            font-size: 2rem;
+            color: #3498db;
+            margin-bottom: 0.5rem;
+        }
+        .metric-card p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .user-list {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .user-list h2 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .hidden {
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            background: #ecf0f1;
+            border: none;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            border-radius: 4px;
+        }
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>HireHive Dashboard</h1>
+        <div id="userInfo"></div>
+    </header>
+
+    <div class="container">
+        <!-- Login/Register Forms -->
+        <div id="authForms">
+            <div class="tabs">
+                <button class="tab active" onclick="showForm('adminLogin')">Admin Login</button>
+                <button class="tab" onclick="showForm('adminRegister')">Admin Register</button>
+                <button class="tab" onclick="showForm('userLogin')">User Login</button>
+            </div>
+            
+            <div id="adminLogin" class="form-container">
+                <h2>Admin Login</h2>
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="adminMobile">Mobile Number</label>
+                        <input type="tel" id="adminMobile" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+            </div>
+
+            <div id="adminRegister" class="form-container hidden">
+                <h2>Admin Register</h2>
+                <form id="adminRegisterForm">
+                    <div class="form-group">
+                        <label for="adminRegName">Name</label>
+                        <input type="text" id="adminRegName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminRegMobile">Mobile Number</label>
+                        <input type="tel" id="adminRegMobile" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminRegPassword">Password</label>
+                        <input type="password" id="adminRegPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Register</button>
+                </form>
+            </div>
+
+            <div id="userLogin" class="form-container hidden">
+                <h2>User Login</h2>
+                <form id="userLoginForm">
+                    <div class="form-group">
+                        <label for="userMobile">Mobile Number</label>
+                        <input type="tel" id="userMobile" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPassword">Password</label>
+                        <input type="password" id="userPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="dashboard">
+            <h2>Admin Dashboard</h2>
+            <div class="form-container">
+                <h3>Add New User</h3>
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="userName">Name</label>
+                        <input type="text" id="userName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userMobile">Mobile Number</label>
+                        <input type="tel" id="userMobile" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPassword">Password</label>
+                        <input type="password" id="userPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Add User</button>
+                </form>
+            </div>
+
+            <div class="user-list">
+                <h3>Users</h3>
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Mobile</th>
+                            <th>Total Calls</th>
+                            <th>Total Hiring</th>
+                            <th>Working Candidates</th>
+                            <th>Inactive Candidates</th>
+                            <th>Payout (INR)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- User Dashboard -->
+        <div id="userDashboard" class="dashboard">
+            <h2 id="userNameDisplay">Welcome, User</h2>
+            <div class="metrics">
+                <div class="metric-card">
+                    <h3 id="totalCalls">0</h3>
+                    <p>Total Calls</p>
+                </div>
+                <div class="metric-card">
+                    <h3 id="totalHiring">0</h3>
+                    <p>Total Hiring</p>
+                </div>
+                <div class="metric-card">
+                    <h3 id="workingCandidates">0</h3>
+                    <p>Working Candidates</p>
+                </div>
+                <div class="metric-card">
+                    <h3 id="inactiveCandidates">0</h3>
+                    <p>Inactive Candidates</p>
+                </div>
+                <div class="metric-card">
+                    <h3 id="payout">₹0</h3>
+                    <p>Payout</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let admins = JSON.parse(localStorage.getItem('hirehive_admins')) || [];
+        let users = JSON.parse(localStorage.getItem('hirehive_users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('hirehive_currentUser')) || null;
+
+        // DOM elements
+        const authForms = document.getElementById('authForms');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const userDashboard = document.getElementById('userDashboard');
+        const userInfo = document.getElementById('userInfo');
+
+        // Initialize
+        init();
+
+        function init() {
+            if (currentUser) {
+                showDashboard();
+            } else {
+                showAuthForms();
+            }
+        }
+
+        function showForm(formId) {
+            document.querySelectorAll('.form-container').forEach(form => form.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(formId).classList.remove('hidden');
+            document.querySelector(`[onclick="showForm('${formId}')"]`).classList.add('active');
+        }
+
+        function showAuthForms() {
+            authForms.style.display = 'block';
+            adminDashboard.classList.remove('active');
+            userDashboard.classList.remove('active');
+        }
+
+        function showDashboard() {
+            authForms.style.display = 'none';
+            if (currentUser.role === 'admin') {
+                adminDashboard.classList.add('active');
+                userDashboard.classList.remove('active');
+                loadUsersTable();
+                userInfo.innerHTML = `<span>Welcome, ${currentUser.name}</span> <button class="btn btn-secondary" onclick="logout()">Logout</button>`;
+            } else {
+                userDashboard.classList.add('active');
+                adminDashboard.classList.remove('active');
+                loadUserMetrics();
+                userInfo.innerHTML = `<span>Welcome, ${currentUser.name}</span> <button class="btn btn-secondary" onclick="logout()">Logout</button>`;
+            }
+        }
+
+        // Admin Register
+        document.getElementById('adminRegisterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('adminRegName').value;
+            const mobile = document.getElementById('adminRegMobile').value;
+            const password = document.getElementById('adminRegPassword').value;
+
+            if (admins.some(a => a.mobile === mobile)) {
+                alert('Admin with this mobile number already exists');
+                return;
+            }
+
+            const admin = { id: Date.now(), name, mobile, password, role: 'admin' };
+            admins.push(admin);
+            localStorage.setItem('hirehive_admins', JSON.stringify(admins));
+            alert('Admin registered successfully. Please login.');
+            showForm('adminLogin');
+        });
+
+        // Admin Login
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const mobile = document.getElementById('adminMobile').value;
+            const password = document.getElementById('adminPassword').value;
+
+            const admin = admins.find(a => a.mobile === mobile && a.password === password);
+            if (admin) {
+                currentUser = admin;
+                localStorage.setItem('hirehive_currentUser', JSON.stringify(currentUser));
+                showDashboard();
+            } else {
+                alert('Invalid credentials');
+            }
+        });
+
+        // User Login
+        document.getElementById('userLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const mobile = document.getElementById('userMobile').value;
+            const password = document.getElementById('userPassword').value;
+
+            const user = users.find(u => u.mobile === mobile && u.password === password);
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('hirehive_currentUser', JSON.stringify(currentUser));
+                showDashboard();
+            } else {
+                alert('Invalid credentials');
+            }
+        });
+
+        // Add User
+        document.getElementById('addUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const mobile = document.getElementById('userMobile').value;
+            const password = document.getElementById('userPassword').value;
+
+            if (users.some(u => u.mobile === mobile)) {
+                alert('User with this mobile number already exists');
+                return;
+            }
+
+            const user = {
+                id: Date.now(),
+                name,
+                mobile,
+                password,
+                role: 'user',
+                adminId: currentUser.id,
+                metrics: {
+                    totalCalls: 0,
+                    totalHiring: 0,
+                    workingCandidates: 0,
+                    inactiveCandidates: 0,
+                    payout: 0
+                }
+            };
+            users.push(user);
+            localStorage.setItem('hirehive_users', JSON.stringify(users));
+            loadUsersTable();
+            document.getElementById('addUserForm').reset();
+        });
+
+        function loadUsersTable() {
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            const adminUsers = users.filter(u => u.adminId === currentUser.id);
+            adminUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.mobile}</td>
+                    <td>${user.metrics.totalCalls}</td>
+                    <td>${user.metrics.totalHiring}</td>
+                    <td>${user.metrics.workingCandidates}</td>
+                    <td>${user.metrics.inactiveCandidates}</td>
+                    <td>₹${user.metrics.payout}</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="updateMetrics(${user.id})">Update</button>
+                        <button class="btn btn-secondary" onclick="deleteUser(${user.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function loadUserMetrics() {
+            document.getElementById('userNameDisplay').textContent = `Welcome, ${currentUser.name}`;
+            document.getElementById('totalCalls').textContent = currentUser.metrics.totalCalls;
+            document.getElementById('totalHiring').textContent = currentUser.metrics.totalHiring;
+            document.getElementById('workingCandidates').textContent = currentUser.metrics.workingCandidates;
+            document.getElementById('inactiveCandidates').textContent = currentUser.metrics.inactiveCandidates;
+            document.getElementById('payout').textContent = `₹${currentUser.metrics.payout}`;
+        }
+
+        function updateMetrics(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+
+            const newCalls = prompt('Enter new total calls:', user.metrics.totalCalls);
+            const newHiring = prompt('Enter new total hiring:', user.metrics.totalHiring);
+            const newWorking = prompt('Enter new working candidates:', user.metrics.workingCandidates);
+            const newInactive = prompt('Enter new inactive candidates:', user.metrics.inactiveCandidates);
+            const newPayout = prompt('Enter new payout:', user.metrics.payout);
+
+            if (newCalls !== null) user.metrics.totalCalls = parseInt(newCalls) || 0;
+            if (newHiring !== null) user.metrics.totalHiring = parseInt(newHiring) || 0;
+            if (newWorking !== null) user.metrics.workingCandidates = parseInt(newWorking) || 0;
+            if (newInactive !== null) user.metrics.inactiveCandidates = parseInt(newInactive) || 0;
+            if (newPayout !== null) user.metrics.payout = parseInt(newPayout) || 0;
+
+            localStorage.setItem('hirehive_users', JSON.stringify(users));
+            loadUsersTable();
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                users = users.filter(u => u.id !== userId);
+                localStorage.setItem('hirehive_users', JSON.stringify(users));
+                loadUsersTable();
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('hirehive_currentUser');
+            showAuthForms();
+        }
+    </script>
+</body>
+</html>
